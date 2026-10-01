@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌐 IP 工具箱 - 实用导航</title>
+<meta name="description" content="IP 查询、网络诊断、浏览器检测与 AI 服务状态工具箱：归属地、ASN、风险评级、DNS/CDN、WHOIS、全球 Ping、WebRTC 泄漏检测">
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://tile.openstreetmap.org">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+}
+a { text-decoration: none; color: inherit; }
+.mono { font-family: "SF Mono", "Fira Code", Consolas, monospace; }
+
+/* ===== 顶部 ===== */
+.top-bar {
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  padding: 18px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 20px rgba(168,85,247,0.2);
+  position: relative;
+  z-index: 20;
+}
+.top-bar .logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.top-bar .back-link {
+  color: rgba(255,255,255,0.9);
+  font-size: 13px;
+  padding: 6px 16px;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 50px;
+  transition: all 0.2s;
+}
+.top-bar .back-link:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+/* ===== 容器 ===== */
+.container { max-width: 1040px; margin: 0 auto; padding: 22px 18px 40px; }
+
+/* ===== 标签导航 ===== */
+.tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 6px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.7);
+  margin-bottom: 20px;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex: 0 0 auto;
+  padding: 9px 16px;
+  border-radius: 11px;
+  border: none;
+  background: transparent;
+  color: #8b7fa8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.tab:hover { background: rgba(236,72,153,0.08); color: #ec4899; }
+.tab.active {
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(168,85,247,0.3);
+}
+
+/* ===== 面板 ===== */
+.panel { display: none; animation: fadeUp 0.3s ease; }
+.panel.active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ===== 卡片 ===== */
+.card {
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 22px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 30px rgba(168,85,247,0.08);
+  border: 1px solid rgba(255,255,255,0.6);
+  overflow: hidden;
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.card-sub { font-size: 12px; color: #a99cb8; margin: -8px 0 14px; line-height: 1.6; }
+
+/* ===== 主 IP 卡 ===== */
+.ip-main-card { text-align: center; padding: 32px 22px; }
+.ip-label { font-size: 13px; color: #999; margin-bottom: 8px; }
+.ip-address {
+  font-size: 34px;
+  font-weight: 700;
+  font-family: "SF Mono", "Fira Code", Consolas, monospace;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+  word-break: break-all;
+}
+.ip-meta { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+
+/* ===== 徽章 ===== */
+.ip-tag, .badge {
+  padding: 4px 13px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+  line-height: 1.5;
+}
+.ip-tag.loc { background: #fce4ec; color: #ec4899; }
+.ip-tag.isp { background: #f3e5f5; color: #a855f7; }
+.ip-tag.asn { background: #e8eaf6; color: #5c6bc0; }
+.ip-tag.colo { background: #e0f2f1; color: #00897b; }
+.badge.good { background: #dcfce7; color: #16a34a; }
+.badge.warn { background: #fef3c7; color: #d97706; }
+.badge.bad { background: #fee2e2; color: #dc2626; }
+.badge.neutral { background: #eef2f7; color: #64748b; }
+.badge.info { background: #e0e7ff; color: #4f46e5; }
+
+/* ===== 指标格 ===== */
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.metric {
+  background: rgba(255,255,255,0.7);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid rgba(236,72,153,0.1);
+  text-align: center;
+}
+.metric-label { font-size: 11px; color: #a99cb8; margin-bottom: 6px; letter-spacing: .3px; }
+.metric-value { font-size: 19px; font-weight: 700; color: #3a2f52; word-break: break-all; }
+.metric-value.small { font-size: 15px; }
+.metric-note { font-size: 11px; color: #b9aecb; margin-top: 5px; }
+
+/* ===== 评分环 ===== */
+.score-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.score-ring { position: relative; width: 118px; height: 118px; flex: 0 0 auto; }
+.score-ring svg { transform: rotate(-90deg); }
+.score-ring .score-num {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.score-ring .score-num b { font-size: 28px; color: #3a2f52; line-height: 1; }
+.score-ring .score-num span { font-size: 10px; color: #a99cb8; margin-top: 3px; }
+.score-info { flex: 1 1 220px; min-width: 200px; }
+.score-info p { font-size: 13px; color: #6b6280; line-height: 1.7; }
+
+/* ===== 表格 ===== */
+.kv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.kv-table tr { border-bottom: 1px solid rgba(168,85,247,0.08); }
+.kv-table tr:last-child { border-bottom: none; }
+.kv-table th {
+  text-align: left;
+  padding: 9px 10px 9px 0;
+  color: #a99cb8;
+  font-weight: 600;
+  font-size: 12px;
+  width: 130px;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.kv-table td { padding: 9px 0; color: #3a2f52; word-break: break-all; }
+.kv-table td.mono { font-family: "SF Mono", "Fira Code", Consolas, monospace; font-size: 12px; }
+
+/* ===== 数据网格 ===== */
+.source-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; }
+.source-item {
+  background: rgba(255,255,255,0.7);
+  border-radius: 13px;
+  padding: 13px 14px;
+  border: 1px solid rgba(236,72,153,0.08);
+  transition: all 0.2s;
+}
+.source-item:hover { border-color: rgba(236,72,153,0.3); box-shadow: 0 2px 12px rgba(236,72,153,0.1); }
+.source-name { font-size: 12px; font-weight: 700; color: #a855f7; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.source-ip { font-size: 14px; font-family: "SF Mono","Fira Code",Consolas,monospace; color: #3a2f52; word-break: break-all; }
+.source-loc { font-size: 11px; color: #a99cb8; margin-top: 4px; line-height: 1.5; }
+.source-loading { color: #cbbfd9; font-size: 12px; }
+.source-error { color: #ef4444; font-size: 11px; }
+
+/* ===== 延迟 ===== */
+.ping-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 11px; }
+.ping-item {
+  background: rgba(255,255,255,0.7);
+  border-radius: 13px;
+  padding: 14px;
+  text-align: center;
+  border: 1px solid rgba(236,72,153,0.08);
+  transition: all 0.3s;
+}
+.ping-item.testing { border-color: rgba(168,85,247,0.35); }
+.ping-item.done { border-color: rgba(236,72,153,0.2); }
+.ping-name { font-size: 12px; font-weight: 600; color: #6b6280; margin-bottom: 7px; }
+.ping-tag { font-size: 10px; padding: 1px 7px; border-radius: 50px; margin-left: 4px; font-weight: 600; }
+.ping-tag.domestic { background: #fef3c7; color: #d97706; }
+.ping-tag.intl { background: #dbeafe; color: #2563eb; }
+.ping-value { font-size: 20px; font-weight: 700; font-family: "SF Mono","Fira Code",Consolas,monospace; }
+.ping-value.good { color: #10b981; }
+.ping-value.ok { color: #f59e0b; }
+.ping-value.bad { color: #ef4444; }
+.ping-value.testing { color: #a855f7; font-size: 13px; }
+.ping-value.timeout { color: #cbbfd9; font-size: 13px; }
+.ping-ms { font-size: 11px; color: #a99cb8; }
+.ping-lines { font-size: 10px; color: #b9aecb; margin-top: 5px; font-family: "SF Mono",monospace; }
+
+/* ===== 按钮 / 输入 ===== */
+.btn {
+  padding: 5px 14px;
+  border: 1px solid rgba(236,72,153,0.3);
+  border-radius: 50px;
+  background: transparent;
+  color: #ec4899;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.btn:hover { background: linear-gradient(135deg, #ec4899, #a855f7); color: #fff; border-color: transparent; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.right { margin-left: auto; }
+.btn.primary { background: linear-gradient(135deg, #ec4899, #a855f7); color: #fff; border-color: transparent; }
+
+.input-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.input-row input, .input-row select {
+  flex: 1 1 200px;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(236,72,153,0.25);
+  background: rgba(255,255,255,0.85);
+  font-size: 13px;
+  font-family: inherit;
+  color: #3a2f52;
+  outline: none;
+  transition: all .2s;
+}
+.input-row input:focus, .input-row select:focus { border-color: #ec4899; box-shadow: 0 0 0 3px rgba(236,72,153,0.12); }
+.input-row select { flex: 0 0 110px; cursor: pointer; }
+.input-row .btn { padding: 10px 22px; border-radius: 12px; }
+.chip-row { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip {
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  background: rgba(255,255,255,0.8);
+  border: 1px solid rgba(168,85,247,0.2);
+  color: #7c6f96;
+  cursor: pointer;
+  transition: all .18s;
+  font-family: inherit;
+}
+.chip:hover { border-color: #ec4899; color: #ec4899; }
+.chip.active { background: linear-gradient(135deg,#ec4899,#a855f7); color: #fff; border-color: transparent; }
+
+/* ===== 状态点 ===== */
+.status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; flex: 0 0 auto; }
+.status-dot.online { background: #10b981; }
+.status-dot.offline { background: #ef4444; }
+.status-dot.warn { background: #f59e0b; }
+.status-dot.loading { background: #a855f7; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* ===== 报警 / 提示 ===== */
+.alert {
+  padding: 11px 15px;
+  border-radius: 12px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.alert.warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
+.alert.bad { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+.alert.ok { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+.alert.info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
+
+/* ===== 地图 ===== */
+.map-box {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(236,72,153,0.15);
+  background: #eef2f7;
+}
+.map-box .tile { position: absolute; width: 256px; height: 256px; user-select: none; pointer-events: none; }
+.map-pin {
+  position: absolute; left: 50%; top: 50%;
+  width: 16px; height: 16px; margin: -8px 0 0 -8px;
+  background: #ec4899; border: 3px solid #fff; border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(236,72,153,0.28), 0 2px 8px rgba(0,0,0,.3);
+  z-index: 5;
+}
+.map-pin::after {
+  content: ''; position: absolute; inset: -8px; border-radius: 50%;
+  border: 2px solid rgba(236,72,153,0.5); animation: ping 1.8s infinite;
+}
+@keyframes ping { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(2.1); opacity: 0; } }
+.map-attr {
+  position: absolute; right: 4px; bottom: 3px; z-index: 6;
+  font-size: 9px; color: #64748b; background: rgba(255,255,255,.8);
+  padding: 1px 5px; border-radius: 4px;
+}
+.map-hint { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); font-size: 12px; color: #94a3b8; z-index: 1; }
+
+/* ===== 列表 ===== */
+.list { list-style: none; }
+.list li {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 0; font-size: 13px; color: #3a2f52;
+  border-bottom: 1px solid rgba(168,85,247,0.07);
+  line-height: 1.6;
+}
+.list li:last-child { border-bottom: none; }
+.list .k { color: #a99cb8; font-size: 12px; flex: 0 0 118px; font-weight: 600; }
+.list .v { flex: 1; word-break: break-all; }
+
+/* ===== 评分条 ===== */
+.bar { height: 7px; border-radius: 4px; background: #eef2f7; overflow: hidden; margin-top: 6px; }
+.bar > i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg,#ec4899,#a855f7); transition: width .6s ease; }
+
+/* ===== 页脚 ===== */
+.footer { text-align: center; padding: 18px; color: #a99cb8; font-size: 12px; line-height: 1.8; }
+.footer a { color: #a855f7; }
+
+/* ===== 加载骨架 ===== */
+.skeleton {
+  background: linear-gradient(90deg, #f3eef8 25%, #eae0f5 37%, #f3eef8 63%);
+  background-size: 400% 100%;
+  animation: sk 1.4s ease infinite;
+  border-radius: 6px;
+  color: transparent !important;
+  min-height: 14px;
+  display: inline-block;
+  min-width: 60px;
+}
+@keyframes sk { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+@media (max-width: 640px) {
+  .container { padding: 16px 12px 32px; }
+  .card { padding: 18px 15px; border-radius: 17px; }
+  .ip-address { font-size: 23px; }
+  .top-bar { padding: 14px 16px; }
+  .top-bar .logo { font-size: 17px; }
+  .kv-table th { width: 92px; font-size: 11.5px; }
+  .list .k { flex: 0 0 92px; }
+  .score-ring { width: 100px; height: 100px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo">🌐 IP 工具箱</div>
+  <a href="/" class="back-link">← 返回导航</a>
+</div>
+
+<div class="container">
+
+  <!-- 标签导航 -->
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="overview">🏠 概览</button>
+    <button class="tab" data-tab="detail">🔎 IP 详情</button>
+    <button class="tab" data-tab="network">🛰️ 网络诊断</button>
+    <button class="tab" data-tab="latency">⚡ 延迟 / 全球 Ping</button>
+    <button class="tab" data-tab="browser">🕵️ 浏览器检测</button>
+    <button class="tab" data-tab="ai">🤖 AI 与服务</button>
+  </nav>
+
+  <!-- ═══════════ 概览 ═══════════ -->
+  <section class="panel active" id="panel-overview">
+    <div class="card ip-main-card">
+      <div class="ip-label">当前出口 IP</div>
+      <div class="ip-address" id="mainIP"><span class="status-dot loading"></span>检测中…</div>
+      <div class="ip-meta" id="mainMeta"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        🛡️ IP 信誉与风险评估
+        <button class="btn right" data-action="refreshRisk">🔄 重新评估</button>
+      </div>
+      <div class="card-sub">综合代理 / VPN / 机房 / 移动网络 / 滥用标记等公开数据得出的参考分，0–100 越高越干净。</div>
+      <div class="score-wrap">
+        <div class="score-ring" id="riskRing">
+          <svg width="118" height="118" viewBox="0 0 118 118">
+            <circle cx="59" cy="59" r="50" fill="none" stroke="#eef2f7" stroke-width="9"></circle>
+            <circle id="riskArc" cx="59" cy="59" r="50" fill="none" stroke="#a855f7" stroke-width="9"
+                    stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16"
+                    style="transition: stroke-dashoffset .8s ease, stroke .4s"></circle>
+          </svg>
+          <div class="score-num"><b id="riskScore">–</b><span id="riskLevel">评估中</span></div>
+        </div>
+        <div class="score-info">
+          <div id="riskFlags" style="margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap;"></div>
+          <p id="riskDesc">正在从多个公开数据源获取该 IP 的信誉信息…</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📡 协议与位置概况</div>
+      <div class="ip-dual metric-grid" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr));">
+        <div class="metric" style="text-align:left;">
+          <div class="metric-label">🔷 IPv4</div>
+          <div class="metric-value small mono" id="ipv4Value">检测中…</div>
+          <div class="metric-note" id="ipv4Info"></div>
+        </div>
+        <div class="metric" style="text-align:left;">
+          <div class="metric-label">🟣 IPv6</div>
+          <div class="metric-value small mono" id="ipv6Value">检测中…</div>
+          <div class="metric-note" id="ipv6Info"></div>
+        </div>
+        <div class="metric" style="text-align:left;">
+          <div class="metric-label">🌍 归属地</div>
+          <div class="metric-value small" id="geoValue">–</div>
+          <div class="metric-note" id="geoInfo"></div>
+        </div>
+        <div class="metric" style="text-align:left;">
+          <div class="metric-label">🏢 运营网络</div>
+          <div class="metric-value small" id="ispValue">–</div>
+          <div class="metric-note" id="ispInfo"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        🔍 多源出口地址回显
+        <button class="btn right" data-action="queryAllSources">🔄 刷新</button>
+      </div>
+      <div class="card-sub">同一出口的不同服务回显结果，可用于核对代理是否生效、是否发生分流失效。</div>
+      <div class="source-grid" id="sourceGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ IP 详情 ═══════════ -->
+  <section class="panel" id="panel-detail">
+    <div class="card">
+      <div class="card-title">🔎 查询任意 IP / 域名</div>
+      <div class="input-row">
+        <input type="text" id="detailInput" placeholder="输入 IPv4 / IPv6 / 域名，留空则查询本机出口 IP" autocomplete="off" spellcheck="false">
+        <button class="btn primary" data-action="queryDetail">查询</button>
+      </div>
+      <div class="chip-row" id="detailChips">
+        <button class="chip active" data-ip="self">本机</button>
+        <button class="chip" data-ip="1.1.1.1">1.1.1.1</button>
+        <button class="chip" data-ip="8.8.8.8">8.8.8.8</button>
+        <button class="chip" data-ip="223.5.5.5">223.5.5.5</button>
+        <button class="chip" data-ip="github.com">github.com</button>
+        <button class="chip" data-ip="www.baidu.com">www.baidu.com</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📋 基础与网络属性</div>
+      <table class="kv-table"><tbody id="detailBasic">
+        <tr><th>状态</th><td>等待查询…</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌍 地理位置</div>
+      <table class="kv-table"><tbody id="detailGeo">
+        <tr><th>状态</th><td>等待查询…</td></tr>
+      </tbody></table>
+      <div style="margin-top:14px;">
+        <div class="map-box" id="mapBox">
+          <div class="map-hint">查询后显示位置地图</div>
+        </div>
+        <div style="margin-top:8px;font-size:11.5px;color:#b9aecb;text-align:right;" id="mapActions"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🚩 风险标记与多源位置对比</div>
+      <div id="detailFlags" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
+      <table class="kv-table"><tbody id="detailSources">
+        <tr><th>数据源</th><td>等待查询…</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📜 RDAP / WHOIS 注册资料</div>
+      <div class="card-sub">对域名返回注册商、创建/到期时间、域名服务器；对 IP 返回所属网段、RIR 与分配时间。</div>
+      <div class="input-row">
+        <input type="text" id="rdapInput" placeholder="域名或 IP（默认使用上面的查询值）" autocomplete="off" spellcheck="false">
+        <button class="btn primary" data-action="queryRdap">查询 RDAP</button>
+      </div>
+      <table class="kv-table"><tbody id="rdapResult">
+        <tr><th>状态</th><td>等待查询…</td></tr>
+      </tbody></table>
+      <div id="rdapRawWrap" style="margin-top:12px;display:none;">
+        <details>
+          <summary style="cursor:pointer;font-size:12.5px;color:#a855f7;font-weight:600;">查看原始响应</summary>
+          <pre id="rdapRaw" class="mono" style="margin-top:10px;max-height:320px;overflow:auto;font-size:11px;background:#faf7fd;border:1px solid rgba(168,85,247,.12);border-radius:12px;padding:12px;color:#5b5170;line-height:1.55;white-space:pre-wrap;word-break:break-all;"></pre>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 网络诊断 ═══════════ -->
+  <section class="panel" id="panel-network">
+    <div class="card">
+      <div class="card-title">
+        🚦 出口与网站分流
+        <button class="btn right" data-action="queryExits">🔄 重新检测</button>
+      </div>
+      <div class="card-sub">通过多个不同厂商的 IP 回显服务核对访问时的实际出口 IP，并按地址汇总。若部分服务走了代理、部分直连，这里会出现多个不同出口，可据此检查分流规则。</div>
+      <div id="exitSummary" class="alert info" style="margin-bottom:14px;">正在检测各站点出口…</div>
+      <div class="source-grid" id="exitGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        🌐 DNS 解析（DoH 多解析器）
+        <button class="btn right" data-action="queryDns">🔄 解析</button>
+      </div>
+      <div class="card-sub">通过 Cloudflare / Google / 阿里 DNS / DNSPod 的 DoH 接口并发解析，可对比不同解析器的结果是否一致，用于排查 DNS 污染与分流。结果顺序不计入差异。</div>
+      <div class="input-row">
+        <input type="text" id="dnsInput" placeholder="域名，例如 www.google.com" value="www.google.com" autocomplete="off" spellcheck="false">
+        <select id="dnsType">
+          <option value="A">A</option>
+          <option value="AAAA">AAAA</option>
+          <option value="CNAME">CNAME</option>
+          <option value="MX">MX</option>
+          <option value="TXT">TXT</option>
+          <option value="NS">NS</option>
+          <option value="SOA">SOA</option>
+          <option value="HTTPS">HTTPS</option>
+        </select>
+      </div>
+      <div id="dnsVerdict"></div>
+      <div class="source-grid" id="dnsGrid"></div>
+      <div style="margin-top:14px;">
+        <table class="kv-table"><tbody id="dnsCname">
+          <tr><th>CNAME 链</th><td>—</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        🧭 CDN 与边缘节点识别
+        <button class="btn right" data-action="queryCdn">🔄 检测</button>
+      </div>
+      <div class="card-sub">根据 DNS 解析结果与响应特征识别该域名背后的 CDN / 云厂商。</div>
+      <div class="input-row">
+        <input type="text" id="cdnInput" placeholder="域名，例如 www.cloudflare.com" value="www.cloudflare.com" autocomplete="off" spellcheck="false">
+        <button class="btn primary" data-action="queryCdn">检测</button>
+      </div>
+      <table class="kv-table"><tbody id="cdnResult">
+        <tr><th>状态</th><td>等待检测…</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        🔌 常用服务连通性
+        <button class="btn right" data-action="queryPorts">🔄 检测</button>
+      </div>
+      <div class="card-sub">探测本机到各主流厂商公共资源的连通性与耗时。浏览器只能发起 HTTP(S) 请求，结果表示「能否建立连接」，不等同于 ICMP Ping。</div>
+      <div class="source-grid" id="portGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 延迟 ═══════════ -->
+  <section class="panel" id="panel-latency">
+    <div class="card">
+      <div class="card-title">
+        ⚡ 网络延迟测试
+        <button class="btn right" data-action="testAllLatency">🔄 重新测试</button>
+      </div>
+      <div class="card-sub">每个目标多轮采样取中位数，减少单次抖动影响。数值为 HTTP 往返耗时，与 ICMP Ping 口径不同。</div>
+      <div class="ping-grid" id="pingGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        🌏 全球 Ping（Globalping）
+        <button class="btn right" data-action="queryGlobalping">🚀 发起测量</button>
+      </div>
+      <div class="card-sub">从全球真实探针发起 ping / traceroute，查看各地区到目标的延迟与丢包。</div>
+      <div class="input-row">
+        <input type="text" id="gpTarget" placeholder="目标域名或 IP" value="www.baidu.com" autocomplete="off" spellcheck="false">
+        <select id="gpType">
+          <option value="ping">Ping</option>
+          <option value="traceroute">Traceroute</option>
+          <option value="http">HTTP</option>
+        </select>
+      </div>
+      <div class="chip-row" id="gpcChips">
+        <button class="chip active" data-loc="world">全球</button>
+        <button class="chip" data-loc="CN">中国</button>
+        <button class="chip" data-loc="US">美国</button>
+        <button class="chip" data-loc="DE">德国</button>
+        <button class="chip" data-loc="JP">日本</button>
+        <button class="chip" data-loc="SG">新加坡</button>
+      </div>
+      <div id="gpStatus" class="alert info">尚未发起测量。</div>
+      <div class="source-grid" id="gpGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ 浏览器检测 ═══════════ -->
+  <section class="panel" id="panel-browser">
+    <div class="card">
+      <div class="card-title">
+        🖥️ 环境信息
+        <button class="btn right" data-action="refreshBrowser">🔄 重新检测</button>
+      </div>
+      <table class="kv-table"><tbody id="envTable">
+        <tr><th>状态</th><td>检测中…</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔬 一致性校验</div>
+      <div class="card-sub">比对时区、语言、平台、UA 与屏幕等特征是否自洽，这也是无头浏览器与伪装环境最容易露馅的地方。</div>
+      <div id="consistencyList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧬 设备指纹</div>
+      <div class="card-sub">各类指纹哈希仅在本机计算，不会上传到任何服务器。</div>
+      <table class="kv-table"><tbody id="fpTable">
+        <tr><th>状态</th><td>检测中…</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🤖 自动化 / 无头特征</div>
+      <div id="autoList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        📡 WebRTC 泄漏检测
+        <button class="btn right" data-action="queryWebrtc">🔄 检测</button>
+      </div>
+      <div class="card-sub">通过 ICE 候选收集查看浏览器暴露了哪些本地与公网地址。若公网 ICE 地址与出口 IP 不一致，说明存在 WebRTC 泄漏。</div>
+      <div id="webrtcVerdict" class="alert info">点击右上角开始检测。</div>
+      <table class="kv-table"><tbody id="webrtcTable">
+        <tr><th>ICE 候选</th><td>—</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        🔑 权限状态
+        <button class="btn right" data-action="queryPermissions">🔄 刷新</button>
+      </div>
+      <div class="source-grid" id="permGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ AI 与服务 ═══════════ -->
+  <section class="panel" id="panel-ai">
+    <div class="card">
+      <div class="card-title">
+        🤖 AI 平台连通性
+        <button class="btn right" data-action="queryAi">🔄 重新检测</button>
+      </div>
+      <div class="card-sub">从本机探测各 AI 平台静态资源的可达性与耗时，用于判断当前网络能否正常访问对应服务（不代表账号可用性）。</div>
+      <div id="aiVerdict" class="alert info">正在检测…</div>
+      <div class="ping-grid" id="aiGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        📊 服务状态聚合
+        <button class="btn right" data-action="queryStatus">🔄 刷新状态</button>
+      </div>
+      <div class="card-sub">聚合各平台官方 Statuspage 的运行状态，经 Cloudflare 边缘代理获取，网络受限环境下也能看到结果。</div>
+      <div class="source-grid" id="statusGrid"></div>
+      <div id="statusDetail" style="margin-top:14px;"></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="footer">
+  🌸 IP 工具箱 · 数据来自公开网络服务 · <a href="/">返回导航首页</a><br>
+  <span style="font-size:11px;">指纹与 WebRTC 结果仅在本机计算，不会上传。</span>
+</div>
+
+<script src="ip-app.js?v=20260930"></script>
+<script src="ip-browser.js?v=20260930"></script>
+<script src="ip-ai.js?v=20260930"></script>
+
+</body>
+</html>

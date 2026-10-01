@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理 - 🌸 实用导航</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #2d1b69, #6b3fa0, #a855c7, #ec4899);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "SF Pro SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+            padding: 20px;
+        }
+        .msg-box {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(20px);
+            padding: 50px 40px;
+            border-radius: 24px;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .msg-box .icon { font-size: 56px; margin-bottom: 16px; display: block; }
+        .msg-box h1 { font-size: 22px; color: #2d1b69; margin-bottom: 10px; }
+        .msg-box p { color: #9ca3af; font-size: 14px; margin-bottom: 24px; line-height: 1.6; }
+        .msg-box a {
+            display: inline-block; padding: 12px 30px;
+            background: linear-gradient(135deg, #a855c7, #ec4899);
+            color: #fff; text-decoration: none; border-radius: 12px;
+            font-weight: 600; transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(168,85,199,0.3);
+        }
+        .msg-box a:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(168,85,199,0.4); }
+    </style>
+</head>
+<body>
+    <div class="msg-box">
+        <span class="icon">🔄</span>
+        <h1>管理已迁移</h1>
+        <p>后台管理现已整合到首页中，<br>您可以直接在首页点击「管理」按钮操作。</p>
+        <a href="../">🌸 返回首页管理</a>
+    </div>
+</body>
+</html>

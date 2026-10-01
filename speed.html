@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ 网站测速 · 实用导航</title>
+<meta name="description" content="网站测速工具 — 延迟测试、下载速度、全球节点延迟">
+<link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml">
+<style>
+/* ===== 基础重置 ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 50%, #e8eaf6 100%);
+  min-height: 100vh;
+  color: #333;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ===== 顶部头部 ===== */
+.speed-header {
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
+  padding: 36px 40px 44px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.speed-header::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  animation: shimmer 8s linear infinite;
+}
+@keyframes shimmer { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+.speed-header h1 {
+  font-size: 28px; font-weight: 700; color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  position: relative;
+}
+.speed-header p {
+  font-size: 13px; color: rgba(255,255,255,0.85);
+  margin-top: 6px; position: relative;
+}
+.speed-back {
+  position: absolute; top: 16px; left: 16px;
+  padding: 8px 16px; border-radius: 50px;
+  background: rgba(255,255,255,0.2); backdrop-filter: blur(4px);
+  color: #fff; font-size: 13px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.3);
+  cursor: pointer; transition: all 0.25s ease; z-index: 2;
+}
+.speed-back:hover { background: rgba(255,255,255,0.35); transform: translateX(-2px); }
+
+/* ===== 主容器 ===== */
+.speed-container {
+  max-width: 900px;
+  margin: -24px auto 0;
+  padding: 0 20px 40px;
+  position: relative;
+  z-index: 5;
+}
+
+/* ===== 通用面板 ===== */
+.speed-panel {
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 8px 32px rgba(168,85,247,0.08);
+  padding: 24px;
+  margin-bottom: 20px;
+  animation: panelIn 0.4s ease forwards;
+  opacity: 0; transform: translateY(20px);
+}
+@keyframes panelIn { to { opacity: 1; transform: translateY(0); } }
+.speed-panel:nth-child(2) { animation-delay: 0.1s; }
+.speed-panel:nth-child(3) { animation-delay: 0.2s; }
+.speed-panel:nth-child(4) { animation-delay: 0.3s; }
+.speed-panel:nth-child(5) { animation-delay: 0.4s; }
+
+.speed-panel-title {
+  font-size: 16px; font-weight: 700; color: #4a4a4a;
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  padding-bottom: 12px; border-bottom: 2px solid rgba(236,72,153,0.1);
+}
+.speed-panel-title .icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: #fff; font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.speed-panel-title .badge {
+  margin-left: auto; padding: 3px 10px; border-radius: 50px;
+  background: #f3e5f5; color: #a855f7; font-size: 11px; font-weight: 600;
+}
+
+/* ===== 开始测速按钮 ===== */
+.speed-start-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 16px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: #fff; font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(236,72,153,0.3);
+}
+.speed-start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(236,72,153,0.4); }
+.speed-start-btn:active { transform: translateY(0) scale(0.98); }
+.speed-start-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.speed-start-btn .spin { display: inline-block; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== 延迟测试网格 ===== */
+.ping-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.ping-item {
+  background: rgba(236,72,153,0.03); border-radius: 14px; padding: 14px;
+  text-align: center; border: 1px solid rgba(236,72,153,0.05);
+  transition: all 0.3s;
+}
+.ping-item.testing { border-color: rgba(168,85,247,0.2); background: rgba(168,85,247,0.04); }
+.ping-item.done { border-color: rgba(236,72,153,0.12); }
+.ping-item .ping-name { font-size: 12px; font-weight: 600; color: #666; margin-bottom: 6px; }
+.ping-item .ping-loc { font-size: 9px; color: #aaa; margin-bottom: 6px; }
+.ping-item .ping-val {
+  font-size: 20px; font-weight: 700; font-family: "SF Mono","Fira Code",monospace;
+}
+.ping-item .ping-val.good { color: #10b981; }
+.ping-item .ping-val.ok { color: #f59e0b; }
+.ping-item .ping-val.bad { color: #ef4444; }
+.ping-item .ping-val.testing { color: #a855f7; font-size: 11px; }
+.ping-item .ping-val.timeout { color: #ccc; font-size: 11px; }
+.ping-item .ping-ms { font-size: 10px; color: #aaa; }
+.ping-item .ping-bar {
+  height: 4px; border-radius: 2px; margin-top: 8px;
+  background: rgba(0,0,0,0.05); overflow: hidden;
+}
+.ping-item .ping-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; width: 0; }
+.ping-bar-fill.good { background: linear-gradient(90deg, #10b981, #34d399); }
+.ping-bar-fill.ok { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.ping-bar-fill.bad { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+/* ===== 下载测速 ===== */
+.dl-area { text-align: center; }
+.dl-gauge {
+  width: 200px; height: 200px; margin: 0 auto 16px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.dl-gauge svg { transform: rotate(-90deg); }
+.dl-gauge .track { stroke: rgba(236,72,153,0.08); }
+.dl-gauge .progress {
+  stroke: url(#dlGrad);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ease;
+}
+.dl-gauge-center {
+  position: absolute; text-align: center;
+}
+.dl-gauge-value {
+  font-size: 36px; font-weight: 700; font-family: "SF Mono","Fira Code",monospace;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.dl-gauge-unit { font-size: 14px; color: #aaa; }
+.dl-info { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+.dl-info-item { font-size: 12px; color: #999; }
+.dl-info-item span { font-weight: 700; font-family: "SF Mono","Fira Code",monospace; color: #666; }
+
+/* ===== 全球节点地图 ===== */
+.region-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.region-item {
+  background: rgba(236,72,153,0.03); border-radius: 14px; padding: 14px;
+  border: 1px solid rgba(236,72,153,0.05); transition: all 0.3s;
+  display: flex; align-items: center; gap: 10px;
+}
+.region-item:hover { border-color: rgba(236,72,153,0.15); }
+.region-item .r-flag { font-size: 24px; }
+.region-item .r-info { flex: 1; }
+.region-item .r-name { font-size: 12px; font-weight: 600; color: #555; }
+.region-item .r-url { font-size: 9px; color: #bbb; font-family: "SF Mono","Fira Code",monospace; }
+.region-item .r-latency {
+  font-size: 16px; font-weight: 700; font-family: "SF Mono","Fira Code",monospace;
+  text-align: right;
+}
+.region-item .r-latency.good { color: #10b981; }
+.region-item .r-latency.ok { color: #f59e0b; }
+.region-item .r-latency.bad { color: #ef4444; }
+.region-item .r-latency.testing { color: #a855f7; font-size: 10px; }
+.region-item .r-latency.pending { color: #ccc; }
+
+/* ===== 上传测速 ===== */
+.dl-gauge .up-progress { stroke: url(#upGrad); }
+.up-info { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+.up-info-item { font-size: 12px; color: #999; }
+.up-info-item span { font-weight: 700; font-family: "SF Mono","Fira Code",monospace; color: #666; }
+
+/* ===== 页脚 ===== */
+.speed-footer {
+  text-align: center; padding: 30px 20px;
+  color: #aaa; font-size: 12px;
+}
+.speed-footer a { color: #a855f7; font-weight: 600; }
+
+/* ===== 移动端 ===== */
+@media (max-width: 600px) {
+  .speed-header { padding: 50px 16px 30px; }
+  .speed-header h1 { font-size: 20px; }
+  .speed-container { padding: 0 12px 30px; margin-top: -16px; }
+  .speed-panel { padding: 16px; border-radius: 16px; }
+  .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  .ping-grid { grid-template-columns: repeat(2, 1fr); }
+  .dl-gauge { width: 160px; height: 160px; }
+  .dl-gauge-value { font-size: 28px; }
+  .region-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- 顶部头部 -->
+<div class="speed-header">
+  <a href="/" class="speed-back">← 返回导航</a>
+  <h1>⚡ 网站测速</h1>
+  <p>延迟测试 · 下载速度 · 全球节点延迟</p>
+</div>
+
+<div class="speed-container">
+
+  <!-- 一键测速 -->
+  <div class="speed-panel" style="animation-delay:0s;">
+    <button class="speed-start-btn" id="startBtn">
+      <span id="startBtnText">🚀 一键测速</span>
+    </button>
+  </div>
+
+  <!-- 延迟测试 -->
+  <div class="speed-panel">
+    <div class="speed-panel-title">
+      <span class="icon">⚡</span> Ping 延迟测试
+      <span class="badge" id="pingBadge">等待测速</span>
+      <button id="pingSingleBtn" style="margin-left:auto;padding:4px 12px;border:1px solid rgba(236,72,153,0.2);border-radius:8px;background:rgba(236,72,153,0.04);color:#a855f7;font-size:11px;cursor:pointer;transition:all 0.2s;">单独测试</button>
+    </div>
+    <div class="ping-grid" id="pingGrid"></div>
+  </div>
+
+  <!-- 下载速度 -->
+  <div class="speed-panel">
+    <div class="speed-panel-title">
+      <span class="icon">📥</span> 下载速度测试
+      <span class="badge" id="dlBadge">等待测速</span>
+      <button id="dlSingleBtn" style="margin-left:auto;padding:4px 12px;border:1px solid rgba(236,72,153,0.2);border-radius:8px;background:rgba(236,72,153,0.04);color:#a855f7;font-size:11px;cursor:pointer;transition:all 0.2s;">单独测试</button>
+    </div>
+    <div class="dl-area">
+      <div class="dl-gauge">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="dlGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ec4899"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="100" cy="100" r="85" fill="none" stroke-width="12"/>
+          <circle class="progress" id="dlProgress" cx="100" cy="100" r="85" fill="none" stroke-width="12"
+            stroke-dasharray="534" stroke-dashoffset="534"/>
+        </svg>
+        <div class="dl-gauge-center">
+          <div class="dl-gauge-value" id="dlValue">0</div>
+          <div class="dl-gauge-unit" id="dlUnit">Mbps</div>
+        </div>
+      </div>
+      <div class="dl-info">
+        <div class="dl-info-item">已下载 <span id="dlSize">0</span> MB</div>
+        <div class="dl-info-item">耗时 <span id="dlTime">0</span> s</div>
+        <div class="dl-info-item">状态 <span id="dlStatus" style="color:#a855f7;">就绪</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 上传速度 -->
+  <div class="speed-panel">
+    <div class="speed-panel-title">
+      <span class="icon">📤</span> 上传速度测试
+      <span class="badge" id="upBadge">等待测速</span>
+      <button id="upSingleBtn" style="margin-left:auto;padding:4px 12px;border:1px solid rgba(236,72,153,0.2);border-radius:8px;background:rgba(236,72,153,0.04);color:#a855f7;font-size:11px;cursor:pointer;transition:all 0.2s;">单独测试</button>
+    </div>
+    <div class="dl-area">
+      <div class="dl-gauge">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="upGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#a855f7"/>
+              <stop offset="100%" stop-color="#22d3ee"/>
+            </linearGradient>
+          </defs>
+          <circle class="track" cx="100" cy="100" r="85" fill="none" stroke-width="12"/>
+          <circle class="progress up-progress" id="upProgress" cx="100" cy="100" r="85" fill="none" stroke-width="12"
+            stroke-dasharray="534" stroke-dashoffset="534"/>
+        </svg>
+        <div class="dl-gauge-center">
+          <div class="dl-gauge-value" id="upValue">0</div>
+          <div class="dl-gauge-unit" id="upUnit">Mbps</div>
+        </div>
+      </div>
+      <div class="up-info">
+        <div class="up-info-item">已上传 <span id="upSize">0</span> MB</div>
+        <div class="up-info-item">耗时 <span id="upTime">0</span> s</div>
+        <div class="up-info-item">状态 <span id="upStatus" style="color:#a855f7;">就绪</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 全球节点延迟 -->
+  <div class="speed-panel">
+    <div class="speed-panel-title">
+      <span class="icon">🌍</span> 全球节点延迟
+      <span class="badge" id="regionBadge">等待测速</span>
+    </div>
+    <div class="region-grid" id="regionGrid"></div>
+  </div>
+
+</div>
+
+<!-- 页脚 -->
+<div class="speed-footer">
+  ⚡ 网站测速 · <a href="/">返回导航首页</a><br>
+  Powered by Cloudflare Pages · 数据仅供参考
+</div>
+
+<script src="/speed-app.js?v=7"></script>
+</body>
+</html>

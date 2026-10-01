@@ -1,0 +1,13 @@
+name = "my-anime-nav"
+pages_build_output_dir = "."
+
+# Cloudflare Pages 的 KV 绑定（站点数据 / 搜索引擎 / 后台密码 / 会话都存这里）。
+#
+# 部署前请先创建自己的命名空间，把下面的 id 换成真实值：
+#     npx wrangler kv namespace create NAV_DATA
+#
+# 然后在 Pages 项目「Settings → Functions → KV namespace bindings」
+# 里再加一条同名绑定：Variable name = NAV_DATA。
+[[kv_namespaces]]
+binding = "NAV_DATA"
+id = "<YOUR_KV_NAMESPACE_ID>"

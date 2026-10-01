@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#faf5ff" />
+    <title>关于 - 实用导航</title>
+    <link rel="icon" href="../assets/images/favicon.svg" type="image/svg+xml" />
+    <link rel="shortcut icon" href="../assets/images/favicon.svg" />
+    <meta name="keywords" content="实用导航,动漫导航,在线工具,ACG" />
+    <meta name="description" content="一个动漫风格的网址导航站，汇集各类实用工具与资源" />
+
+    <link rel="stylesheet" href="../assets/css/bootstrap.min-4.3.1.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="../assets/css/custom-style.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="../assets/fontawesome-5.15.4/css/all.min.css" type="text/css" />
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 50%, #ede9fe 100%);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        /* 樱花飘落装饰 */
+        .sakura-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .sakura {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #fce7f3, #f9a8d4);
+            border-radius: 50% 0 50% 0;
+            opacity: 0.5;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg) scale(1);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(110vh) rotate(720deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        .about-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        .about-container {
+            max-width: 900px;
+            margin: 50px auto;
+            background: rgba(255,255,255,0.92);
+            border-radius: 24px;
+            box-shadow: 0 10px 50px rgba(168,85,199,0.15);
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .about-header {
+            background: linear-gradient(135deg, #2d1b69 0%, #6b3fa0 25%, #a855c7 50%, #ec4899 75%, #f472b6 100%);
+            background-size: 300% 300%;
+            animation: animeGradient 8s ease infinite;
+            color: white;
+            padding: 60px 30px 50px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes animeGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 页眉装饰元素 */
+        .about-header::before {
+            content: '✿ ❀ ✿ ❀ ✿';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            color: rgba(255,255,255,0.25);
+            letter-spacing: 10px;
+            animation: sparkleFloat 4s ease-in-out infinite;
+        }
+
+        @keyframes sparkleFloat {
+            0%, 100% { opacity: 0.25; transform: translateX(-50%) translateY(0); }
+            50% { opacity: 0.6; transform: translateX(-50%) translateY(-5px); }
+        }
+
+        .about-header::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: rgba(255,255,255,0.92);
+            border-radius: 50% 50% 0 0;
+        }
+
+        .about-header .mascot-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+            display: block;
+            animation: bounceMascot 3s ease-in-out infinite;
+        }
+
+        @keyframes bounceMascot {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .about-header h1 {
+            font-size: 36px;
+            margin: 0 0 10px 0;
+            font-weight: 800;
+            text-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            letter-spacing: 2px;
+        }
+
+        .about-header .subtitle {
+            font-size: 16px;
+            margin: 0;
+            opacity: 0.9;
+            font-weight: 300;
+            letter-spacing: 4px;
+        }
+
+        .about-content {
+            padding: 40px 35px;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 22px;
+            color: #2d1b69;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(168,85,199,0.2);
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 12px;
+            background: linear-gradient(135deg, #a855c7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, rgba(168,85,199,0.05), rgba(236,72,153,0.05));
+            padding: 24px 20px;
+            border-radius: 18px;
+            text-align: center;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(168,85,199,0.08);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(168,85,199,0.12);
+            border-color: rgba(168,85,199,0.2);
+        }
+
+        .feature-item i {
+            font-size: 36px;
+            background: linear-gradient(135deg, #a855c7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+
+        .feature-item h4 {
+            font-size: 16px;
+            color: #2d1b69;
+            margin: 0 0 8px;
+            font-weight: 700;
+        }
+
+        .feature-item p {
+            font-size: 13px;
+            color: #8b8b8b;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(168,85,199,0.08) 0%, rgba(236,72,153,0.08) 100%);
+            border-left: 4px solid #a855c7;
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .highlight-box p {
+            margin: 0;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .highlight-box .emoji-deco {
+            font-size: 18px;
+            margin-right: 6px;
+        }
+
+        .contact-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0 0 0;
+        }
+
+        .contact-list li {
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            background: rgba(168,85,199,0.06);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s;
+            border: 1px solid rgba(168,85,199,0.08);
+        }
+
+        .contact-list li:hover {
+            background: rgba(168,85,199,0.12);
+            border-color: rgba(168,85,199,0.2);
+            transform: translateX(4px);
+        }
+
+        .contact-list li i {
+            margin-right: 14px;
+            background: linear-gradient(135deg, #a855c7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            width: 24px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .contact-list li strong {
+            color: #2d1b69;
+            margin-right: 8px;
+            min-width: 80px;
+            font-weight: 600;
+        }
+
+        .contact-list li span {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .back-home {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(168,85,199,0.04), rgba(236,72,153,0.04));
+        }
+
+        .back-home a {
+            display: inline-block;
+            padding: 12px 40px;
+            background: linear-gradient(135deg, #a855c7, #ec4899);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(168,85,199,0.3);
+            letter-spacing: 1px;
+        }
+
+        .back-home a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(168,85,199,0.4);
+        }
+
+        .back-home a i {
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .about-container {
+                margin: 20px;
+            }
+
+            .about-header {
+                padding: 40px 20px 35px;
+            }
+
+            .about-header h1 {
+                font-size: 28px;
+            }
+
+            .about-content {
+                padding: 30px 20px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .about-header::before {
+                font-size: 14px;
+                letter-spacing: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 樱花飘落效果 -->
+    <div class="sakura-container" id="sakuraContainer"></div>
+
+    <div class="about-wrapper">
+        <div class="about-container">
+            <div class="about-header">
+                <span class="mascot-icon">🌸</span>
+                <h1>✿ 实用导航 ✿</h1>
+                <p class="subtitle">— 让每一次访问都充满乐趣 —</p>
+            </div>
+
+            <div class="about-content">
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-heart"></i>
+                        关于本站
+                    </h2>
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <p><span class="emoji-deco">🌟</span> <strong>实用导航</strong> 是一个精心收集整理的网址导航站，致力于为大家提供实用、有趣、高质量的在线资源和工具。</p>
+                        </div>
+                        <p>我们汇聚了各类常用工具、科研办公资源、影音娱乐站点、素材资源库以及开发设计平台，让你告别繁多的书签和繁杂的收藏夹，一站直达你需要的网站。</p>
+                        <p>无论你是开发者、设计师、科研工作者，还是普通的互联网用户，这里都能找到对你有帮助的站点。我们持续更新和筛选，确保每个收录的链接都是优质、可用的。</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-star"></i>
+                        站点特色
+                    </h2>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <i class="fas fa-compass"></i>
+                            <h4>精选分类</h4>
+                            <p>常用工具、科研办公、悠闲娱乐、素材资源、开发设计、资讯学习，六大分类覆盖你的日常所需</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-search"></i>
+                            <h4>智能搜索</h4>
+                            <p>集成百度、必应、谷歌等多引擎搜索，支持常用搜索、工具查询、社区检索等多种模式</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-sync-alt"></i>
+                            <h4>持续更新</h4>
+                            <p>定期筛选和更新收录站点，确保每个链接的有效性和实用性，为你节省宝贵时间</p>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-palette"></i>
+                            <h4>精美风格</h4>
+                            <p>紫粉渐变主题，柔和的视觉体验，让浏览成为一种享受</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-lightbulb"></i>
+                        使用说明
+                    </h2>
+                    <div class="section-content">
+                        <div class="highlight-box">
+                            <p><span class="emoji-deco">💡</span> 点击左侧分类菜单可以快速切换不同分类，点击卡片上的 <i class="fas fa-external-link-alt" style="color: #a855c7;"></i> 图标可直接打开对应网站。<br>
+                            在顶部搜索框中可以选择不同的搜索引擎，输入关键词一键搜索，方便快捷。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-envelope"></i>
+                        联系我们
+                    </h2>
+                    <ul class="contact-list">
+                        <li>
+                            <i class="fas fa-star"></i>
+                            <strong>反馈建议</strong>
+                            <span>如果你有好的网站推荐或功能建议，欢迎随时提出</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-link"></i>
+                            <strong>申请收录</strong>
+                            <span>优秀的网站可以点击左侧「申请收录」提交</span>
+                        </li>
+                        <li>
+                            <i class="fas fa-smile"></i>
+                            <strong>感谢使用</strong>
+                            <span>实用导航 · 因你而美好 ✨</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="back-home">
+                <a href="../">
+                    <i class="fas fa-home"></i>
+                    返回首页
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="sakura.js?v=20260705"></script>
+    <script src="../assets/js/jquery.min-3.2.1.js"></script>
+</body>
+</html>
